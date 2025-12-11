@@ -111,8 +111,6 @@ Este diseño permite implementar correctamente tres conceptos clave:
 - **Reintentos**: Si hay conflicto, la operación puede reintentar con un estado fresco sin interferir con otras.
 - **Evitar locks pesados**: No necesitamos bloquear recursos porque cada operación trabaja de forma aislada.
 
-Al final del día, devolver copias profundas es la opción más segura, más cercana a cómo funcionaría un entorno de producción real, y es coherente con los requisitos del ejercicio. Es uno de esos detalles que marcan la diferencia entre una simulación que "funciona por suerte" y una implementación que realmente entiende y respeta los principios de concurrencia.
-
 ---
 
 ## 🧪 Pruebas de Concurrencia
