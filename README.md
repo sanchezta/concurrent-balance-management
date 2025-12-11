@@ -89,19 +89,19 @@ Puede parecer una decisión simple, pero en realidad es fundamental para que tod
 
 **1. Simula el comportamiento de bases de datos reales**
 
-Cuando haces un query a una base de datos real, esta te devuelve un snapshot inmutable del estado en ese momento. No te está dando acceso directo a la fila interna de la base de datos. Así que si queremos que nuestras pruebas sean realistas y reflejen lo que pasaría en producción, nuestro repositorio in-memory debe comportarse de la misma manera.
+Una base de datos nunca te da la referencia real de la fila; siempre te entrega un snapshot del estado. Para que las pruebas sean realistas, el repositorio in-memory debe comportarse igual y por eso devuelve una copia.
 
 **2. Evita que operaciones concurrentes compartan la misma instancia**
 
-Imagina esto: si el repositorio devolviera siempre la misma referencia de objeto, todas las operaciones concurrentes estarían trabajando sobre la misma instancia en memoria. Esto significaría que cuando una operación modifica el saldo, todas las demás verían ese cambio instantáneamente. Suena conveniente, ¿no? Pues no. En realidad, esto rompe completamente el control de concurrencia basado en versiones, porque todas las operaciones verían siempre la última versión actualizada, y el optimistic locking no tendría sentido.
+Si todas las operaciones recibieran la misma instancia, cualquier cambio sería visible para todas de inmediato, lo que rompería el control de versiones y haría imposible detectar conflictos.
 
 **3. Permite que el optimistic locking funcione de verdad**
 
-El optimistic concurrency control se basa en la premisa de que cada operación trabaja sobre su propio snapshot independiente del estado. Luego, cuando intenta guardar los cambios, compite con otras operaciones para aplicar su actualización. Si todas las operaciones compartieran la misma instancia, no habría competencia real, y el mecanismo CAS (Compare-And-Swap) no podría detectar conflictos de versión.
+Cada operación necesita trabajar sobre su propio snapshot. Solo así, cuando intenta guardar, puede compararlo con la versión actual y detectar si alguien más modificó la cuenta antes.
 
 **4. Elimina efectos colaterales sorpresa**
 
-Devolver copias defensivas hace que la lógica sea pura y predecible. No hay modificaciones "fantasma" que aparezcan de la nada porque otra parte del código tocó el mismo objeto. Cada operación es independiente y no afecta a las demás hasta que intenta persistir sus cambios.
+Al devolver copias defensivas, evitamos modificaciones compartidas o “fantasma”. Cada operación trabaja aislada y solo impacta el estado cuando realmente persiste sus cambios.
 
 ### ¿Qué logramos con este enfoque?
 
